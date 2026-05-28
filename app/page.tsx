@@ -95,10 +95,14 @@ export default function ThumbnailMaker() {
         ctx.lineTo(0, r);
         ctx.quadraticCurveTo(0, 0, r, 0);
         ctx.closePath();
+        ctx.save();
         ctx.clip();
 
         // Draw image at full native size (no crop needed)
         ctx.drawImage(img, 0, 0, W, H);
+
+        // Restore context so badge is drawn without rounded clip
+        ctx.restore();
 
         if (badge) {
           const badgeImg = new Image();
