@@ -83,7 +83,7 @@ export default function ThumbnailMaker() {
         ctx.clearRect(0, 0, W, H);
 
         // Rounded clip — radius scales with image size, capped at 22px
-        const r = Math.min(22, W * 0.034);
+        const r = Math.min(10, W * 0.016);
         ctx.beginPath();
         ctx.moveTo(r, 0);
         ctx.lineTo(W - r, 0);
