@@ -114,10 +114,8 @@ export default function ThumbnailMaker() {
           badgeImg.onload = () => {
             const bW = badgeImg.naturalWidth || badgeImg.width;
             const bH = badgeImg.naturalHeight || badgeImg.height;
-            // Badge overlaps bottom-left corner edge, accounting for margin
-            const bx = margin - 10;
-            const by = photo.isPortrait ? margin - 10 : margin + H - bH + 10;
-            ctx.drawImage(badgeImg, bx, by, bW, bH);
+            // Simply overlay badge on top of image at its natural position
+            ctx.drawImage(badgeImg, margin, margin, bW, bH);
             resolve(canvas.toDataURL("image/png"));
           };
           badgeImg.src = badge;
