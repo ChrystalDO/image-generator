@@ -7,6 +7,8 @@ interface PhotoItem {
   src: string;
   name: string;
   isPortrait: boolean;
+  naturalWidth: number;
+  naturalHeight: number;
 }
 
 export default function ThumbnailMaker() {
@@ -33,7 +35,7 @@ export default function ThumbnailMaker() {
           const isPortrait = img.height > img.width;
           setPhotos((prev) => [
             ...prev,
-            { id: crypto.randomUUID(), src, name: file.name, isPortrait },
+            { id: crypto.randomUUID(), src, name: file.name, isPortrait, naturalWidth: img.width, naturalHeight: img.height },
           ]);
         };
         img.src = src;
@@ -70,9 +72,9 @@ export default function ThumbnailMaker() {
       const canvas = canvasRef.current!;
       const ctx = canvas.getContext("2d")!;
 
-      // Portrait: 430×640, Landscape: 640×430
-      const W = photo.isPortrait ? 430 : 640;
-      const H = photo.isPortrait ? 640 : 430;
+      // Use the image's natural dimensions
+      const W = photo.naturalWidth;
+      const H = photo.naturalHeight;
       canvas.width = W;
       canvas.height = H;
 
@@ -80,8 +82,8 @@ export default function ThumbnailMaker() {
       img.onload = () => {
         ctx.clearRect(0, 0, W, H);
 
-        // Rounded clip
-        const r = 22;
+        // Rounded clip — radius scales with image size, capped at 22px
+        const r = Math.min(22, W * 0.034);
         ctx.beginPath();
         ctx.moveTo(r, 0);
         ctx.lineTo(W - r, 0);
@@ -95,13 +97,8 @@ export default function ThumbnailMaker() {
         ctx.closePath();
         ctx.clip();
 
-        // Cover-fit image
-        const iA = img.width / img.height;
-        const cA = W / H;
-        let sx = 0, sy = 0, sw = img.width, sh = img.height;
-        if (iA > cA) { sw = img.height * cA; sx = (img.width - sw) / 2; }
-        else { sh = img.width / cA; sy = (img.height - sh) / 2; }
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+        // Draw image at full native size (no crop needed)
+        ctx.drawImage(img, 0, 0, W, H);
 
         if (badge) {
           const badgeImg = new Image();
