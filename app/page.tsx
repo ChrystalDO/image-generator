@@ -72,39 +72,42 @@ export default function ThumbnailMaker() {
       const canvas = canvasRef.current!;
       const ctx = canvas.getContext("2d")!;
 
-      // Use the image's natural dimensions
+      // Use the image's natural dimensions — canvas stays the same size
       const W = photo.naturalWidth;
       const H = photo.naturalHeight;
       const margin = 20;
       const r = 12;
-      // Canvas includes margin on all sides
-      const CW = W + margin * 2;
-      const CH = H + margin * 2;
-      canvas.width = CW;
-      canvas.height = CH;
+      canvas.width = W;
+      canvas.height = H;
+
+      // Inner photo area after padding
+      const iX = margin;
+      const iY = margin;
+      const iW = W - margin * 2;
+      const iH = H - margin * 2;
 
       const img = new Image();
       img.onload = () => {
-        // Transparent background — margin area is empty
-        ctx.clearRect(0, 0, CW, CH);
+        // Transparent background
+        ctx.clearRect(0, 0, W, H);
 
         // Rounded clip inset by margin
         ctx.beginPath();
-        ctx.moveTo(margin + r, margin);
-        ctx.lineTo(margin + W - r, margin);
-        ctx.quadraticCurveTo(margin + W, margin, margin + W, margin + r);
-        ctx.lineTo(margin + W, margin + H - r);
-        ctx.quadraticCurveTo(margin + W, margin + H, margin + W - r, margin + H);
-        ctx.lineTo(margin + r, margin + H);
-        ctx.quadraticCurveTo(margin, margin + H, margin, margin + H - r);
-        ctx.lineTo(margin, margin + r);
-        ctx.quadraticCurveTo(margin, margin, margin + r, margin);
+        ctx.moveTo(iX + r, iY);
+        ctx.lineTo(iX + iW - r, iY);
+        ctx.quadraticCurveTo(iX + iW, iY, iX + iW, iY + r);
+        ctx.lineTo(iX + iW, iY + iH - r);
+        ctx.quadraticCurveTo(iX + iW, iY + iH, iX + iW - r, iY + iH);
+        ctx.lineTo(iX + r, iY + iH);
+        ctx.quadraticCurveTo(iX, iY + iH, iX, iY + iH - r);
+        ctx.lineTo(iX, iY + r);
+        ctx.quadraticCurveTo(iX, iY, iX + r, iY);
         ctx.closePath();
         ctx.save();
         ctx.clip();
 
-        // Draw image inset by margin
-        ctx.drawImage(img, 0, 0, W, H, margin, margin, W, H);
+        // Draw image scaled to fit within the padded area
+        ctx.drawImage(img, 0, 0, W, H, iX, iY, iW, iH);
 
         // Restore so badge is not clipped
         ctx.restore();
@@ -114,8 +117,8 @@ export default function ThumbnailMaker() {
           badgeImg.onload = () => {
             const bW = badgeImg.naturalWidth || badgeImg.width;
             const bH = badgeImg.naturalHeight || badgeImg.height;
-            // Simply overlay badge on top of image at its natural position
-            ctx.drawImage(badgeImg, margin, margin, bW, bH);
+            // Overlay badge at top-left of the photo area
+            ctx.drawImage(badgeImg, 0, 0, bW, bH);
             resolve(canvas.toDataURL("image/png"));
           };
           badgeImg.src = badge;
@@ -165,7 +168,7 @@ export default function ThumbnailMaker() {
           <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#FFD84D", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f0e0d" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
           </div>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: "#1a1917" }}>Image Generator</span>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: "#1a1917" }}>Trip Image Generator</span>
         </div>
         {photos.length > 1 && (
           <button onClick={downloadAll} disabled={downloadingAll} style={{
