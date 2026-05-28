@@ -111,13 +111,10 @@ export default function ThumbnailMaker() {
           badgeImg.onload = () => {
             const bW = badgeImg.naturalWidth || badgeImg.width;
             const bH = badgeImg.naturalHeight || badgeImg.height;
-            // Scale badge to ~18% of image width, maintain aspect ratio
-            const scaledW = Math.round(W * 0.18);
-            const scaledH = Math.round(scaledW * (bH / bW));
-            // Badge overlaps bottom-left corner edge
+            // Badge at native size, overlapping bottom-left corner edge
             const bx = -10;
-            const by = photo.isPortrait ? -10 : H - scaledH + 10;
-            ctx.drawImage(badgeImg, bx, by, scaledW, scaledH);
+            const by = photo.isPortrait ? -10 : H - bH + 10;
+            ctx.drawImage(badgeImg, bx, by, bW, bH);
             resolve(canvas.toDataURL("image/png"));
           };
           badgeImg.src = badge;
