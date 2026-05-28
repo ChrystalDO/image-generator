@@ -151,21 +151,21 @@ export default function ThumbnailMaker() {
   const removePhoto = (id: string) => setPhotos((p) => p.filter((x) => x.id !== id));
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0f0e0d", fontFamily: "'DM Sans', sans-serif", color: "#f0ede8" }}>
+    <div style={{ minHeight: "100vh", background: "#f5f3ef", fontFamily: "'DM Sans', sans-serif", color: "#1a1917" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
 
       {/* Header */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ borderBottom: "1px solid rgba(26,25,23,0.1)", padding: "18px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#FFD84D", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f0e0d" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
           </div>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700 }}>Trip Thumbnail Maker</span>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: "#1a1917" }}>Trip Thumbnail Maker</span>
         </div>
         {photos.length > 1 && (
           <button onClick={downloadAll} disabled={downloadingAll} style={{
             padding: "9px 20px", borderRadius: 8,
-            background: downloadingAll ? "rgba(255,216,77,0.3)" : "#FFD84D",
+            background: downloadingAll ? "rgba(255,216,77,0.4)" : "#FFD84D",
             border: "none", color: "#0f0e0d", fontSize: 13, fontWeight: 600,
             cursor: downloadingAll ? "wait" : "pointer", fontFamily: "inherit",
           }}>
@@ -180,24 +180,24 @@ export default function ThumbnailMaker() {
           {/* Left: photos */}
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div>
-              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(240,237,232,0.38)", margin: "0 0 12px" }}>Photos</p>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(26,25,23,0.4)", margin: "0 0 12px" }}>Photos</p>
               <div
                 onClick={() => photoInputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setIsDraggingPhotos(true); }}
                 onDragLeave={() => setIsDraggingPhotos(false)}
                 onDrop={handlePhotoDrop}
                 style={{
-                  borderRadius: 14, border: isDraggingPhotos ? "2px dashed #FFD84D" : "2px dashed rgba(255,255,255,0.13)",
-                  background: isDraggingPhotos ? "rgba(255,216,77,0.05)" : "rgba(255,255,255,0.02)",
+                  borderRadius: 14, border: isDraggingPhotos ? "2px dashed #e6a800" : "2px dashed rgba(26,25,23,0.18)",
+                  background: isDraggingPhotos ? "rgba(255,216,77,0.06)" : "rgba(26,25,23,0.03)",
                   padding: "28px 20px", cursor: "pointer", textAlign: "center", transition: "all 0.15s",
                 }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(240,237,232,0.28)" strokeWidth="1.5" style={{ margin: "0 auto 10px", display: "block" }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(26,25,23,0.25)" strokeWidth="1.5" style={{ margin: "0 auto 10px", display: "block" }}>
                   <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/>
                 </svg>
-                <span style={{ fontSize: 13, color: "rgba(240,237,232,0.38)" }}>
-                  Drop photos here or <span style={{ color: "#FFD84D", fontWeight: 500 }}>click to upload</span>
+                <span style={{ fontSize: 13, color: "rgba(26,25,23,0.45)" }}>
+                  Drop photos here or <span style={{ color: "#b07d00", fontWeight: 600 }}>click to upload</span>
                 </span>
-                <div style={{ fontSize: 11, color: "rgba(240,237,232,0.22)", marginTop: 6 }}>Landscape and portrait supported · multiple files ok</div>
+                <div style={{ fontSize: 11, color: "rgba(26,25,23,0.3)", marginTop: 6 }}>Landscape and portrait supported · multiple files ok</div>
               </div>
               <input ref={photoInputRef} type="file" accept="image/*" multiple style={{ display: "none" }}
                 onChange={(e) => e.target.files && loadFiles(e.target.files)} />
@@ -209,17 +209,18 @@ export default function ThumbnailMaker() {
                 {photos.map((photo) => (
                   <div key={photo.id} style={{
                     width: photo.isPortrait ? 160 : 240,
-                    borderRadius: 14, overflow: "hidden", background: "#1a1917",
+                    borderRadius: 14, overflow: "hidden", background: "#fff",
+                    border: "1px solid rgba(26,25,23,0.1)",
                     flexShrink: 0,
                   }}>
                     <div style={{
                       position: "relative",
                       paddingBottom: photo.isPortrait ? "148.8%" : "67.2%",
-                      borderRadius: 14, overflow: "hidden",
+                      borderRadius: "14px 14px 0 0", overflow: "hidden",
                     }}>
                       <img src={photo.src} alt={photo.name} style={{
                         position: "absolute", inset: 0, width: "100%", height: "100%",
-                        objectFit: "cover", borderRadius: 14,
+                        objectFit: "cover",
                       }} />
                       {/* Badge preview */}
                       {badge && (
@@ -234,9 +235,9 @@ export default function ThumbnailMaker() {
                       {/* Orientation tag */}
                       <div style={{
                         position: "absolute", top: 8, right: 8,
-                        background: "rgba(15,14,13,0.65)", borderRadius: 4,
+                        background: "rgba(255,255,255,0.85)", borderRadius: 4,
                         padding: "2px 6px", fontSize: 9, fontWeight: 600,
-                        color: "rgba(240,237,232,0.6)", letterSpacing: "0.06em",
+                        color: "rgba(26,25,23,0.6)", letterSpacing: "0.06em",
                         textTransform: "uppercase",
                       }}>
                         {photo.isPortrait ? "Portrait" : "Landscape"}
@@ -244,19 +245,20 @@ export default function ThumbnailMaker() {
                       <button onClick={() => removePhoto(photo.id)} style={{
                         position: "absolute", top: photo.isPortrait ? 30 : 8, right: 8,
                         width: 22, height: 22, borderRadius: "50%",
-                        background: "rgba(15,14,13,0.7)", border: "1px solid rgba(255,255,255,0.15)",
-                        color: "#f0ede8", cursor: "pointer", fontSize: 13, lineHeight: 1,
+                        background: "rgba(255,255,255,0.85)", border: "1px solid rgba(26,25,23,0.15)",
+                        color: "#1a1917", cursor: "pointer", fontSize: 13, lineHeight: 1,
                         display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit",
                       }}>×</button>
                     </div>
                     <div style={{ padding: "8px 10px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-                      <span style={{ fontSize: 10, color: "rgba(240,237,232,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <span style={{ fontSize: 10, color: "rgba(26,25,23,0.45)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {photo.name}
                       </span>
                       <button onClick={() => downloadOne(photo)} disabled={processing === photo.id} style={{
                         padding: "4px 10px", borderRadius: 5, flexShrink: 0,
-                        background: "rgba(255,216,77,0.12)", border: "1px solid rgba(255,216,77,0.3)",
-                        color: "#FFD84D", fontSize: 10, fontWeight: 600,
+                        background: processing === photo.id ? "rgba(255,216,77,0.2)" : "#FFD84D",
+                        border: "none",
+                        color: "#0f0e0d", fontSize: 10, fontWeight: 600,
                         cursor: processing === photo.id ? "wait" : "pointer", fontFamily: "inherit",
                       }}>
                         {processing === photo.id ? "…" : "⬇ Export"}
@@ -271,26 +273,26 @@ export default function ThumbnailMaker() {
           {/* Right: badge + spec */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20, position: "sticky", top: 24 }}>
             <div>
-              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(240,237,232,0.38)", margin: "0 0 12px" }}>Badge</p>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(26,25,23,0.4)", margin: "0 0 12px" }}>Badge</p>
               <div
                 onClick={() => badgeInputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setIsDraggingBadge(true); }}
                 onDragLeave={() => setIsDraggingBadge(false)}
                 onDrop={handleBadgeDrop}
                 style={{
-                  borderRadius: 14, border: isDraggingBadge ? "2px dashed #FF9EC6" : "2px dashed rgba(255,255,255,0.13)",
-                  background: isDraggingBadge ? "rgba(255,158,198,0.05)" : "rgba(255,255,255,0.02)",
+                  borderRadius: 14, border: isDraggingBadge ? "2px dashed #FF9EC6" : "2px dashed rgba(26,25,23,0.18)",
+                  background: isDraggingBadge ? "rgba(255,158,198,0.06)" : "rgba(26,25,23,0.03)",
                   padding: "22px 16px", cursor: "pointer", textAlign: "center", transition: "all 0.15s",
                 }}>
                 {badge ? (
                   <img src={badge} alt="badge" style={{ maxHeight: 60, maxWidth: "100%", margin: "0 auto", display: "block" }} />
                 ) : (
                   <>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(240,237,232,0.28)" strokeWidth="1.5" style={{ margin: "0 auto 8px", display: "block" }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(26,25,23,0.25)" strokeWidth="1.5" style={{ margin: "0 auto 8px", display: "block" }}>
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
-                    <span style={{ fontSize: 12, color: "rgba(240,237,232,0.38)" }}>
-                      Drop badge PNG or <span style={{ color: "#FF9EC6", fontWeight: 500 }}>click to upload</span>
+                    <span style={{ fontSize: 12, color: "rgba(26,25,23,0.45)" }}>
+                      Drop badge PNG or <span style={{ color: "#c4608a", fontWeight: 600 }}>click to upload</span>
                     </span>
                   </>
                 )}
@@ -299,9 +301,9 @@ export default function ThumbnailMaker() {
                 onChange={(e) => e.target.files?.[0] && loadBadge(e.target.files[0])} />
               {badge && (
                 <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: 11, color: "rgba(240,237,232,0.38)", overflow: "hidden", textOverflow: "ellipsis" }}>{badgeName}</span>
+                  <span style={{ fontSize: 11, color: "rgba(26,25,23,0.4)", overflow: "hidden", textOverflow: "ellipsis" }}>{badgeName}</span>
                   <button onClick={() => { setBadge(null); setBadgeName(""); }} style={{
-                    background: "none", border: "none", color: "rgba(240,237,232,0.38)",
+                    background: "none", border: "none", color: "rgba(26,25,23,0.4)",
                     cursor: "pointer", fontSize: 12, fontFamily: "inherit", padding: "2px 6px",
                   }}>Remove</button>
                 </div>
@@ -309,13 +311,14 @@ export default function ThumbnailMaker() {
             </div>
 
             {/* Spec */}
-            <div style={{ padding: "14px 16px", borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-              <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "rgba(240,237,232,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Output spec</p>
-              <p style={{ margin: 0, fontSize: 11, color: "rgba(240,237,232,0.35)", lineHeight: 2 }}>
-                Landscape → 640 × 430px · badge bottom-left<br />
-                Portrait → 430 × 640px · badge top-left<br />
-                Rounded corners (22px radius)<br />
-                No border frame · PNG
+            <div style={{ padding: "14px 16px", borderRadius: 10, background: "#fff", border: "1px solid rgba(26,25,23,0.1)" }}>
+              <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "rgba(26,25,23,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Output spec</p>
+              <p style={{ margin: 0, fontSize: 11, color: "rgba(26,25,23,0.45)", lineHeight: 2 }}>
+                Original dimensions preserved<br />
+                Badge at native pixel size<br />
+                Landscape → badge bottom-left<br />
+                Portrait → badge top-left<br />
+                Rounded corners · no frame · PNG
               </p>
             </div>
           </div>
