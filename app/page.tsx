@@ -103,8 +103,8 @@ export default function ThumbnailMaker() {
         if (badge) {
           const badgeImg = new Image();
           badgeImg.onload = () => {
-            const bW = Math.round(W * 0.30);
-            const bH = Math.round(bW * (badgeImg.height / badgeImg.width));
+            const bW = badgeImg.naturalWidth || badgeImg.width;
+            const bH = badgeImg.naturalHeight || badgeImg.height;
             const margin = 18;
 
             // Portrait → top-left, Landscape → bottom-left
