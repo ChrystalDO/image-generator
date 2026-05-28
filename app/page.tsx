@@ -80,9 +80,11 @@ export default function ThumbnailMaker() {
 
       const img = new Image();
       img.onload = () => {
-        ctx.clearRect(0, 0, W, H);
+        // Fill white first — prevents black canvas on transparent PNGs
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, W, H);
 
-        // Rounded clip — radius scales with image size, capped at 22px
+        // Rounded clip
         const r = Math.min(10, W * 0.016);
         ctx.beginPath();
         ctx.moveTo(r, 0);
@@ -109,11 +111,9 @@ export default function ThumbnailMaker() {
           badgeImg.onload = () => {
             const bW = badgeImg.naturalWidth || badgeImg.width;
             const bH = badgeImg.naturalHeight || badgeImg.height;
-            const margin = 18;
-
-            // Portrait → top-left, Landscape → bottom-left, tight to corner
-            const bx = 14;
-            const by = photo.isPortrait ? 14 : H - bH - 14;
+            // Badge overlaps bottom-left corner edge
+            const bx = -10;
+            const by = photo.isPortrait ? -10 : H - bH + 10;
             ctx.drawImage(badgeImg, bx, by, bW, bH);
             resolve(canvas.toDataURL("image/png"));
           };
