@@ -160,7 +160,7 @@ export default function ThumbnailMaker() {
           <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#FFD84D", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f0e0d" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
           </div>
-          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: "#1a1917" }}>Trip Thumbnail Maker</span>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: "#1a1917" }}>Image Generator</span>
         </div>
         {photos.length > 1 && (
           <button onClick={downloadAll} disabled={downloadingAll} style={{

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Trip Thumbnail Maker",
+  title: "Image Generator",
   description: "Generate branded trip card thumbnails",
 };
 
