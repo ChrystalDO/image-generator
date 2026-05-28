@@ -111,9 +111,9 @@ export default function ThumbnailMaker() {
             const bH = badgeImg.naturalHeight || badgeImg.height;
             const margin = 18;
 
-            // Portrait → top-left, Landscape → bottom-left
-            const bx = margin;
-            const by = photo.isPortrait ? margin : H - bH - margin;
+            // Portrait → top-left, Landscape → bottom-left, tight to corner
+            const bx = 14;
+            const by = photo.isPortrait ? 14 : H - bH - 14;
             ctx.drawImage(badgeImg, bx, by, bW, bH);
             resolve(canvas.toDataURL("image/png"));
           };
@@ -233,7 +233,7 @@ export default function ThumbnailMaker() {
                           ...(photo.isPortrait ? { top: 8, left: 8 } : { bottom: 8, left: 8 }),
                           pointerEvents: "none",
                         }}>
-                          <img src={badge} alt="badge" style={{ height: 24, width: "auto", display: "block" }} />
+                          <img src={badge} alt="badge" style={{ height: 24, width: "auto", display: "block", marginLeft: -4, marginBottom: photo.isPortrait ? 0 : -4, marginTop: photo.isPortrait ? -4 : 0 }} />
                         </div>
                       )}
                       {/* Orientation tag */}
