@@ -75,35 +75,38 @@ export default function ThumbnailMaker() {
       // Use the image's natural dimensions
       const W = photo.naturalWidth;
       const H = photo.naturalHeight;
-      canvas.width = W;
-      canvas.height = H;
+      const margin = 20;
+      const r = 12;
+      // Canvas includes margin on all sides
+      const CW = W + margin * 2;
+      const CH = H + margin * 2;
+      canvas.width = CW;
+      canvas.height = CH;
 
       const img = new Image();
       img.onload = () => {
-        // Fill white first — prevents black canvas on transparent PNGs
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, W, H);
+        // Transparent background — margin area is empty
+        ctx.clearRect(0, 0, CW, CH);
 
-        // Rounded clip
-        const r = Math.min(10, W * 0.016);
+        // Rounded clip inset by margin
         ctx.beginPath();
-        ctx.moveTo(r, 0);
-        ctx.lineTo(W - r, 0);
-        ctx.quadraticCurveTo(W, 0, W, r);
-        ctx.lineTo(W, H - r);
-        ctx.quadraticCurveTo(W, H, W - r, H);
-        ctx.lineTo(r, H);
-        ctx.quadraticCurveTo(0, H, 0, H - r);
-        ctx.lineTo(0, r);
-        ctx.quadraticCurveTo(0, 0, r, 0);
+        ctx.moveTo(margin + r, margin);
+        ctx.lineTo(margin + W - r, margin);
+        ctx.quadraticCurveTo(margin + W, margin, margin + W, margin + r);
+        ctx.lineTo(margin + W, margin + H - r);
+        ctx.quadraticCurveTo(margin + W, margin + H, margin + W - r, margin + H);
+        ctx.lineTo(margin + r, margin + H);
+        ctx.quadraticCurveTo(margin, margin + H, margin, margin + H - r);
+        ctx.lineTo(margin, margin + r);
+        ctx.quadraticCurveTo(margin, margin, margin + r, margin);
         ctx.closePath();
         ctx.save();
         ctx.clip();
 
-        // Draw image at full native size (no crop needed)
-        ctx.drawImage(img, 0, 0, W, H);
+        // Draw image inset by margin
+        ctx.drawImage(img, 0, 0, W, H, margin, margin, W, H);
 
-        // Restore context so badge is drawn without rounded clip
+        // Restore so badge is not clipped
         ctx.restore();
 
         if (badge) {
@@ -111,9 +114,9 @@ export default function ThumbnailMaker() {
           badgeImg.onload = () => {
             const bW = badgeImg.naturalWidth || badgeImg.width;
             const bH = badgeImg.naturalHeight || badgeImg.height;
-            // Badge at native size, overlapping bottom-left corner edge
-            const bx = -10;
-            const by = photo.isPortrait ? -10 : H - bH + 10;
+            // Badge overlaps bottom-left corner edge, accounting for margin
+            const bx = margin - 10;
+            const by = photo.isPortrait ? margin - 10 : margin + H - bH + 10;
             ctx.drawImage(badgeImg, bx, by, bW, bH);
             resolve(canvas.toDataURL("image/png"));
           };
