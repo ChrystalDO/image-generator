@@ -240,7 +240,7 @@ export default function ThumbnailMaker() {
                 <span style={{ fontSize: 13, color: "rgba(26,25,23,0.45)" }}>
                   Drop photos here or <span style={{ color: "#b07d00", fontWeight: 600 }}>click to upload</span>
                 </span>
-                <div style={{ fontSize: 11, color: "rgba(26,25,23,0.3)", marginTop: 6 }}>Landscape and portrait supported · multiple files ok</div>
+                <div style={{ fontSize: 11, color: "rgba(26,25,23,0.3)", marginTop: 6 }}>Multiple files ok</div>
               </div>
               <input ref={photoInputRef} type="file" accept="image/*" multiple style={{ display: "none" }}
                 onChange={(e) => e.target.files && loadFiles(e.target.files)} />
