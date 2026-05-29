@@ -11,10 +11,21 @@ interface PhotoItem {
   naturalHeight: number;
 }
 
+const PRESET_BADGES = [
+  { name: "Bestseller", file: "/label_bestseller.png" },
+  { name: "Family", file: "/label_family.png" },
+  { name: "18 to 35s", file: "/label_label1835.png" },
+  { name: "New Experience", file: "/label_new experience.png" },
+  { name: "New Trip", file: "/label_new trip.png" },
+  { name: "Staff Pick", file: "/label_staff pick.png" },
+  { name: "Top-Rated", file: "/label_top-rated.png" },
+];
+
 export default function ThumbnailMaker() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [badge, setBadge] = useState<string | null>(null);
   const [badgeName, setBadgeName] = useState<string>("");
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
   const [isDraggingBadge, setIsDraggingBadge] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
@@ -60,6 +71,27 @@ export default function ThumbnailMaker() {
     loadFiles(e.dataTransfer.files);
   }, []);
 
+  const selectPresetBadge = (preset: { name: string; file: string }) => {
+    if (selectedPreset === preset.file) {
+      // Deselect
+      setSelectedPreset(null);
+      setBadge(null);
+      setBadgeName("");
+      return;
+    }
+    setSelectedPreset(preset.file);
+    setBadgeName(preset.name);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0);
+      setBadge(canvas.toDataURL("image/png"));
+    };
+    img.src = preset.file;
+  };
+
   const handleBadgeDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDraggingBadge(false);
@@ -72,9 +104,12 @@ export default function ThumbnailMaker() {
       const canvas = canvasRef.current!;
       const ctx = canvas.getContext("2d")!;
 
-      // Use the image's natural dimensions — canvas stays the same size
-      const W = photo.naturalWidth;
-      const H = photo.naturalHeight;
+      // Resize to max 640x427 (landscape) or 427x640 (portrait) if larger
+      const MAX_W = photo.isPortrait ? 427 : 640;
+      const MAX_H = photo.isPortrait ? 640 : 427;
+      const scale = Math.min(1, MAX_W / photo.naturalWidth, MAX_H / photo.naturalHeight);
+      const W = Math.round(photo.naturalWidth * scale);
+      const H = Math.round(photo.naturalHeight * scale);
       const margin = 20;
       const r = 12;
       canvas.width = W;
@@ -217,41 +252,36 @@ export default function ThumbnailMaker() {
                 {photos.map((photo) => (
                   <div key={photo.id} style={{
                     width: photo.isPortrait ? 160 : 240,
-                    borderRadius: 14, overflow: "hidden", background: "#fff",
+                    borderRadius: 14, overflow: "hidden", background: "#e8e6e1",
                     border: "1px solid rgba(26,25,23,0.1)",
                     flexShrink: 0,
                   }}>
                     <div style={{
                       position: "relative",
                       paddingBottom: photo.isPortrait ? "148.8%" : "67.2%",
-                      borderRadius: "14px 14px 0 0", overflow: "hidden",
                     }}>
-                      <img src={photo.src} alt={photo.name} style={{
-                        position: "absolute", inset: 0, width: "100%", height: "100%",
-                        objectFit: "cover",
-                      }} />
-                      {/* Badge preview */}
-                      {badge && (
-                        <div style={{
-                          position: "absolute",
-                          ...(photo.isPortrait ? { top: 8, left: 8 } : { bottom: 8, left: 8 }),
-                          pointerEvents: "none",
-                        }}>
-                          <img src={badge} alt="badge" style={{ height: 24, width: "auto", display: "block", marginLeft: -4, marginBottom: photo.isPortrait ? 0 : -4, marginTop: photo.isPortrait ? -4 : 0 }} />
-                        </div>
-                      )}
-                      {/* Orientation tag */}
+                      {/* Outer transparent margin — matches the 20px padding in export */}
                       <div style={{
-                        position: "absolute", top: 8, right: 8,
-                        background: "rgba(255,255,255,0.85)", borderRadius: 4,
-                        padding: "2px 6px", fontSize: 9, fontWeight: 600,
-                        color: "rgba(26,25,23,0.6)", letterSpacing: "0.06em",
-                        textTransform: "uppercase",
+                        position: "absolute", inset: "5%",
+                        borderRadius: 8, overflow: "hidden",
                       }}>
-                        {photo.isPortrait ? "Portrait" : "Landscape"}
+                        <img src={photo.src} alt={photo.name} style={{
+                          width: "100%", height: "100%",
+                          objectFit: "cover", display: "block",
+                        }} />
+                        {/* Badge overlay — covers full photo like the export does */}
+                        {badge && (
+                          <img src={badge} alt="badge" style={{
+                            position: "absolute", inset: 0,
+                            width: "100%", height: "100%",
+                            objectFit: "cover",
+                            pointerEvents: "none",
+                          }} />
+                        )}
                       </div>
+                      {/* Remove button */}
                       <button onClick={() => removePhoto(photo.id)} style={{
-                        position: "absolute", top: photo.isPortrait ? 30 : 8, right: 8,
+                        position: "absolute", top: 6, right: 6,
                         width: 22, height: 22, borderRadius: "50%",
                         background: "rgba(255,255,255,0.85)", border: "1px solid rgba(26,25,23,0.15)",
                         color: "#1a1917", cursor: "pointer", fontSize: 13, lineHeight: 1,
@@ -282,35 +312,64 @@ export default function ThumbnailMaker() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20, position: "sticky", top: 24 }}>
             <div>
               <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(26,25,23,0.4)", margin: "0 0 12px" }}>Badge</p>
+
+              {/* Preset badge grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+                {PRESET_BADGES.map((preset) => {
+                  const isSelected = selectedPreset === preset.file;
+                  return (
+                    <button
+                      key={preset.file}
+                      onClick={() => selectPresetBadge(preset)}
+                      style={{
+                        position: "relative",
+                        borderRadius: 10,
+                        border: isSelected ? "2.5px solid #FFD84D" : "2px solid rgba(26,25,23,0.12)",
+                        background: isSelected ? "#fffbe6" : "#fff",
+                        padding: "10px 8px", cursor: "pointer", textAlign: "center",
+                        transition: "all 0.15s", fontFamily: "inherit",
+                        boxShadow: isSelected ? "0 0 0 3px rgba(255,216,77,0.35)" : "none",
+                      }}
+                    >
+                      {isSelected && (
+                        <div style={{
+                          position: "absolute", top: 5, right: 5,
+                          width: 16, height: 16, borderRadius: "50%",
+                          background: "#FFD84D", display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
+                            <path d="M2 5l2.5 2.5L8 3" stroke="#0f0e0d" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      )}
+                      <img src={preset.file} alt={preset.name} style={{ maxHeight: 36, maxWidth: "100%", margin: "0 auto", display: "block", objectFit: "contain" }} />
+                      <span style={{ fontSize: 10, color: isSelected ? "#0f0e0d" : "rgba(26,25,23,0.5)", fontWeight: isSelected ? 600 : 400, marginTop: 4, display: "block" }}>{preset.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom upload */}
               <div
                 onClick={() => badgeInputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setIsDraggingBadge(true); }}
                 onDragLeave={() => setIsDraggingBadge(false)}
                 onDrop={handleBadgeDrop}
                 style={{
-                  borderRadius: 14, border: isDraggingBadge ? "2px dashed #FF9EC6" : "2px dashed rgba(26,25,23,0.18)",
+                  borderRadius: 10, border: isDraggingBadge ? "2px dashed #FF9EC6" : "2px dashed rgba(26,25,23,0.18)",
                   background: isDraggingBadge ? "rgba(255,158,198,0.06)" : "rgba(26,25,23,0.03)",
-                  padding: "22px 16px", cursor: "pointer", textAlign: "center", transition: "all 0.15s",
+                  padding: "12px 16px", cursor: "pointer", textAlign: "center", transition: "all 0.15s",
                 }}>
-                {badge ? (
-                  <img src={badge} alt="badge" style={{ maxHeight: 60, maxWidth: "100%", margin: "0 auto", display: "block" }} />
-                ) : (
-                  <>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(26,25,23,0.25)" strokeWidth="1.5" style={{ margin: "0 auto 8px", display: "block" }}>
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <span style={{ fontSize: 12, color: "rgba(26,25,23,0.45)" }}>
-                      Drop badge PNG or <span style={{ color: "#c4608a", fontWeight: 600 }}>click to upload</span>
-                    </span>
-                  </>
-                )}
+                <span style={{ fontSize: 11, color: "rgba(26,25,23,0.45)" }}>
+                  Or drop custom badge / <span style={{ color: "#c4608a", fontWeight: 600 }}>click to upload</span>
+                </span>
               </div>
               <input ref={badgeInputRef} type="file" accept="image/*" style={{ display: "none" }}
-                onChange={(e) => e.target.files?.[0] && loadBadge(e.target.files[0])} />
+                onChange={(e) => { if (e.target.files?.[0]) { setSelectedPreset(null); loadBadge(e.target.files[0]); }}} />
               {badge && (
                 <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 11, color: "rgba(26,25,23,0.4)", overflow: "hidden", textOverflow: "ellipsis" }}>{badgeName}</span>
-                  <button onClick={() => { setBadge(null); setBadgeName(""); }} style={{
+                  <button onClick={() => { setBadge(null); setBadgeName(""); setSelectedPreset(null); }} style={{
                     background: "none", border: "none", color: "rgba(26,25,23,0.4)",
                     cursor: "pointer", fontSize: 12, fontFamily: "inherit", padding: "2px 6px",
                   }}>Remove</button>
@@ -318,17 +377,6 @@ export default function ThumbnailMaker() {
               )}
             </div>
 
-            {/* Spec */}
-            <div style={{ padding: "14px 16px", borderRadius: 10, background: "#fff", border: "1px solid rgba(26,25,23,0.1)" }}>
-              <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 600, color: "rgba(26,25,23,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Output spec</p>
-              <p style={{ margin: 0, fontSize: 11, color: "rgba(26,25,23,0.45)", lineHeight: 2 }}>
-                Original dimensions preserved<br />
-                Badge at native pixel size<br />
-                Landscape → badge bottom-left<br />
-                Portrait → badge top-left<br />
-                Rounded corners · no frame · PNG
-              </p>
-            </div>
           </div>
         </div>
       </div>
